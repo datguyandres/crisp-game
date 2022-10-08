@@ -57,10 +57,13 @@ function update() {
   if(input.isJustReleased && shot ==false){
     shot = true;
     projection.length = 0;
+    console.log(projection.angle);
     if(projection.angle < -1.5){
-      shiftspeed *= projection.angle;
-    }else{
-      shiftspeed *= Math.abs(projection.angle) +1 ;
+     shiftspeed *= projection.angle - 1.5;
+     console.log("PROJECTION CHECK")
+    }
+    else{
+      shiftspeed *= projection.angle + 1.5;
     }
   }
   if (ball.x <=10 || Math.round(ball.x >= 90)){
