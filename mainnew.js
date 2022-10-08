@@ -5,7 +5,14 @@ description = `
 
 characters = [];
 
-options = {};
+const G = {
+  WIDTH: 100,
+  HEIGHT: 100,
+};
+
+options = {
+  viewSize: {x: G.WIDTH, y: G.HEIGHT},
+};
 
 /** @type {{angle: number, length: number, pin: Vector}} */
 let projection;
@@ -21,16 +28,42 @@ let shot = false;
 let switching = false;
 let launch = 0;
 
+/**
+* @typedef {{
+* pos: Vector
+* }} Pin
+*/
+
+/**
+* @type  { Pin [] }
+*/
+let pins = [];
+
 function update() {
   if (!ticks) {
-    ball = vec(50, 89);
+    ball = vec(G.WIDTH/2, 4 * G.HEIGHT/5);
     projection = { angle: 0, length: projlen, pin: ball };
+
+    pins = [];
+    let heightPos = G.HEIGHT/3;
+    let widthPos = G.WIDTH/2;
+    for (let y = 1; y < 5; y++) {
+      let widthDis = widthPos;
+      for (let x = 0; x < y; x++) {
+        pins.push({
+          pos: vec(widthDis, heightPos)
+        });
+        widthDis += G.WIDTH/10
+      } 
+      widthPos -= G.WIDTH/20;
+      heightPos -= G.HEIGHT/20;
+    }
   }
   if ( switching == false){
     projection.angle -= 0.05;
   }
   else if( switching == true){
-    console.log("helo")
+    //console.log("helo")
     projection.angle += 0.05;
     //console.log(Math.round(projection.angle))
   }
@@ -40,7 +73,7 @@ function update() {
   }
   if(Math.round(projection.angle) > 0){
     //console.log(Math.round(projection.angle))
-    console.log("yo")
+    //console.log("yo")
     switching = false;
   }
 
@@ -48,9 +81,9 @@ function update() {
   line(projection.pin, vec(projection.pin).addWithAngle(projection.angle, projection.length));
 
   if(input.isPressed && charge<0.15 && shot == false){
-    charge+=.003
-    shiftspeed += charge
-    dropspeed += charge
+    charge+=.003;
+    shiftspeed += charge;
+    dropspeed += charge;
     //shot = true;
 
   }
@@ -65,7 +98,7 @@ function update() {
      shiftspeed *=  manipshift;
      manipdrop = -3 - projection.angle;
      dropspeed *=  manipdrop;
-     console.log("PROJECTION CHECK")
+     //console.log("PROJECTION CHECK")
     }
     else if(Math.round(projection.angle == -1.5)){
       shiftspeed =0; 
@@ -85,7 +118,7 @@ function update() {
   if (ball.y <=10 || Math.round(ball.y >= 90) ){
     bonks-= 0.01;
     //ball.x = 10;
-    dropspeed *= -1  ;
+    dropspeed *= -1 ;
     //dropspeed *= -1;
   }
   if (shot == true) {
@@ -95,6 +128,14 @@ function update() {
     if (dropspeed != 0){
       dropspeed = dropspeed/1.005;
     }
+
+    if((Math.abs(shiftspeed)<.005) && (Math.abs(dropspeed)<.005)){
+      console.log("zero");
+      shiftspeed = 0;
+      dropspeed = 0;
+      charge = 0;
+      shot = false;
+    }
     ball.y += dropspeed;
     ball.x += shiftspeed;
     box(ball, 3);
@@ -103,11 +144,15 @@ function update() {
   }
 
   if (shot == false){
-    box(ball, 3);
+    ball.x =G.WIDTH/2 
+    ball.y = 4 * G.HEIGHT/5
+    projection.length = 7;
+    //box(ball, 3);
   }
 
-
-
+  pins.forEach((s) => {
+    rect(s.pos.x - 1, s.pos.y - 1, 2, 2);
+  });
   
 }
 addEventListener("load", onLoad);
